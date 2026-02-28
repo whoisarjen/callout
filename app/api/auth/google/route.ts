@@ -18,9 +18,7 @@ export async function GET(request: Request) {
 
   // Get the redirect URI
   const url = new URL(request.url);
-  const redirectUri =
-    process.env.GOOGLE_REDIRECT_URI ||
-    `${url.origin}/api/auth/google/callback`;
+  const redirectUri = `${url.origin}/api/auth/google/callback`;
 
   const authUrl = buildGoogleAuthUrl(state, redirectUri);
 
