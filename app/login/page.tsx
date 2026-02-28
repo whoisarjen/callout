@@ -10,6 +10,9 @@ const errorMessages: Record<string, string> = {
   oauth_failed: "Google sign-in failed. Please try again.",
   invalid_state: "Sign-in session expired. Please try again.",
   missing_params: "Something went wrong. Please try again.",
+  token_exchange_failed: "Failed to verify with Google. Please try again.",
+  user_creation_failed: "Database error. Please contact support.",
+  session_creation_failed: "Session error. Please try again.",
 };
 
 function GoogleIcon({ className }: { className?: string }) {

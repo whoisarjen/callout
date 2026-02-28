@@ -43,18 +43,36 @@ export async function GET(request: Request) {
       "https://callout.whoisarjen.com/api/auth/google/callback";
 
     // Exchange code for user info
-    const googleUser = await exchangeCodeForUser(code, redirectUri);
+    let googleUser;
+    try {
+      googleUser = await exchangeCodeForUser(code, redirectUri);
+    } catch (e) {
+      console.error("Token exchange failed:", e);
+      redirect("/login?error=token_exchange_failed");
+    }
 
     // Find or create user
-    const userId = await findOrCreateUser({
-      id: googleUser.id,
-      email: googleUser.email,
-      name: googleUser.name,
-      picture: googleUser.picture,
-    });
+    let userId;
+    try {
+      userId = await findOrCreateUser({
+        id: googleUser.id,
+        email: googleUser.email,
+        name: googleUser.name,
+        picture: googleUser.picture,
+      });
+    } catch (e) {
+      console.error("User creation failed:", e);
+      redirect("/login?error=user_creation_failed");
+    }
 
     // Create session
-    const token = await createSession(userId);
+    let token;
+    try {
+      token = await createSession(userId);
+    } catch (e) {
+      console.error("Session creation failed:", e);
+      redirect("/login?error=session_creation_failed");
+    }
 
     // Set session cookie
     await setSessionCookie(token);
