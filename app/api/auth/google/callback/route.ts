@@ -36,51 +36,46 @@ export async function GET(request: Request) {
   // Clear the state cookie
   cookieStore.delete("oauth_state");
 
+  // Get the redirect URI
+  const redirectUri =
+    process.env.GOOGLE_REDIRECT_URI ||
+    "https://callout.whoisarjen.com/api/auth/google/callback";
+
+  // Exchange code for user info
+  let googleUser;
   try {
-    // Get the redirect URI
-    const redirectUri =
-      process.env.GOOGLE_REDIRECT_URI ||
-      "https://callout.whoisarjen.com/api/auth/google/callback";
-
-    // Exchange code for user info
-    let googleUser;
-    try {
-      googleUser = await exchangeCodeForUser(code, redirectUri);
-    } catch (e) {
-      console.error("Token exchange failed:", e);
-      redirect("/login?error=token_exchange_failed");
-    }
-
-    // Find or create user
-    let userId;
-    try {
-      userId = await findOrCreateUser({
-        id: googleUser.id,
-        email: googleUser.email,
-        name: googleUser.name,
-        picture: googleUser.picture,
-      });
-    } catch (e) {
-      console.error("User creation failed:", e);
-      redirect("/login?error=user_creation_failed");
-    }
-
-    // Create session
-    let token;
-    try {
-      token = await createSession(userId);
-    } catch (e) {
-      console.error("Session creation failed:", e);
-      redirect("/login?error=session_creation_failed");
-    }
-
-    // Set session cookie
-    await setSessionCookie(token);
-
-    // Redirect to dashboard
-    redirect("/dashboard");
-  } catch (error) {
-    console.error("OAuth callback error:", error);
-    redirect("/login?error=oauth_failed");
+    googleUser = await exchangeCodeForUser(code, redirectUri);
+  } catch (e) {
+    console.error("Token exchange failed:", e);
+    redirect("/login?error=token_exchange_failed");
   }
+
+  // Find or create user
+  let userId;
+  try {
+    userId = await findOrCreateUser({
+      id: googleUser.id,
+      email: googleUser.email,
+      name: googleUser.name,
+      picture: googleUser.picture,
+    });
+  } catch (e) {
+    console.error("User creation failed:", e);
+    redirect("/login?error=user_creation_failed");
+  }
+
+  // Create session
+  let token;
+  try {
+    token = await createSession(userId);
+  } catch (e) {
+    console.error("Session creation failed:", e);
+    redirect("/login?error=session_creation_failed");
+  }
+
+  // Set session cookie
+  await setSessionCookie(token);
+
+  // Redirect to dashboard
+  redirect("/dashboard");
 }
