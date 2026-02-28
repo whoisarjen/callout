@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { nanoid } from "nanoid";
 import { buildGoogleAuthUrl } from "@/lib/auth/google-oauth";
 
-export async function GET(request: Request) {
+export async function GET() {
   const state = nanoid(32);
   const cookieStore = await cookies();
 
@@ -17,8 +17,9 @@ export async function GET(request: Request) {
   });
 
   // Get the redirect URI
-  const url = new URL(request.url);
-  const redirectUri = `${url.origin}/api/auth/google/callback`;
+  const redirectUri =
+    process.env.GOOGLE_REDIRECT_URI ||
+    "https://callout.whoisarjen.com/api/auth/google/callback";
 
   const authUrl = buildGoogleAuthUrl(state, redirectUri);
 

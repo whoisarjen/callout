@@ -38,7 +38,9 @@ export async function GET(request: Request) {
 
   try {
     // Get the redirect URI
-    const redirectUri = `${url.origin}/api/auth/google/callback`;
+    const redirectUri =
+      process.env.GOOGLE_REDIRECT_URI ||
+      "https://callout.whoisarjen.com/api/auth/google/callback";
 
     // Exchange code for user info
     const googleUser = await exchangeCodeForUser(code, redirectUri);
